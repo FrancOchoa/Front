@@ -1,0 +1,188 @@
+<section class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card rounded-0 p-3 mb-2 mt-2">
+        <div class="row">
+          <div class="col">
+            <select class="form-control form-control-sm" [(ngModel)]="user_id">
+              <option value="">-- Relizado por --</option>
+              <option value="{{item.code}}" *ngFor="let item of users">{{item.description}}</option>
+            </select>
+          </div>
+          <div class="col">
+            <select class="form-control form-control-sm" [(ngModel)]="commercial_id">
+              <option value="">-- Comercial --</option>
+              <option value="{{item.code}}" *ngFor="let item of commercials">{{item.description}}</option>
+            </select>
+          </div>
+          <div class="col">
+            <input type="text"
+                   [(ngModel)]="bsRangeValue"
+                   placeholder="Seleccione un rango de fechas"
+                   class="form-control form-control-sm"
+                   #drp="bsDaterangepicker"
+                   bsDaterangepicker
+                   [bsConfig]="{ dateInputFormat: 'DD/MM/YYYY', containerClass: 'theme-red', locale: 'es' }"
+                   placement="bottom"
+                   [maxDate]="maxDate">
+          </div>
+          <div class="col">
+            <button class="btn btn-primary btn-sm mr-1" (click)="searchData()">
+              <i class="fa fa-search"></i> Buscar
+            </button>
+            <button class="btn btn-success btn-sm" (click)="exportData()">
+              <i class="fa fa-file-excel"></i> Exportar en Excel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card rounded-0 p-1 mb-2">
+        <div class="table-responsive">
+          <table #datatable class="table table-sm table-bordered table-hover" style="width: 100%!important;">
+            <thead>
+              <tr class="bg-secondary text-center text-white">
+                <th class="align-middle hide" style="width: 15px;">N°</th>
+                <th class="align-middle" style="width: 30px;"></th>
+                <th class="align-middle">Estado</th>
+                <th class="align-middle" style="width: 50px;">F. Solicitud</th>
+                <th class="align-middle" style="width: 100px;">Nro. Cotización</th>
+                <!--th class="align-middle" style="width: 50px;">F. Respuesta</th-->
+                <th class="align-middle">Realizado por</th>
+                <th class="align-middle">Comercial</th>
+                <th class="align-middle">Empresa</th>
+                <th class="align-middle">Origen</th>
+                <th class="align-middle">Destino</th>
+                <th class="align-middle" style="width: 60px;">Inc.</th>
+                <th class="align-middle hide" style="width: 60px;">Tipo Embarque</th>
+                <th class="align-middle" style="width: 60px">Tipo Servicio</th>
+                <th class="align-middle" style="width: 50px;">FCL/LCL</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of rows; let i = index" [ngClass]="{'table-warning': row.v_est_cot == 0, 'table-danger': row.v_est_cot == 2}">
+                <td class="text-right hide" style="width: 15px;">{{i + 1}}</td>
+                <td class="text-center align-middle">
+                  <div class="dropdown">
+                    <button id="dropdownMenuButton" class="btn btn-default btn-sm dropdown-toggle p-0 pr-1 pl-1"
+                            type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Opc.
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                      <a class="dropdown-item" href="javascript:void(0);" (click)="seeComments(templateModalComments, row.id)">
+                        <i class="fa fa-comments"></i> Comentarios
+                      </a>
+                      <a class="dropdown-item" href="javascript:void(0);" *ngIf="row.observations" (click)="seeObservation(templateModal, row.observations)">
+                        <i class="fa fa-comment-o"></i> Observacion
+                      </a>
+                      <a class="dropdown-item" href="javascript:void(0);" *ngIf="row.v_obs_resp" (click)="seeObservation(templateModal, row.v_obs_resp)">
+                        <i class="fa fa-comment"></i> Obs. Rechazo
+                      </a>
+
+                      <div class="dropdown-divider mt-0 mb-1"></div>
+                      <a class="dropdown-item" href="javascript:void(0);" (click)="editQuote(row.id)">
+                        <i class="fa fa-pencil"></i> Editar
+                      </a>
+                      <a class="dropdown-item" href="javascript:void(0);" (click)="approvedQuote(row.detalleid, row.code, i)"
+                         *ngIf="row.v_est_cot != 1 && row.v_est_cot != 2">
+                        <i class="fa fa-thumbs-o-up"></i> Aprobar
+                      </a>
+                      <a class="dropdown-item" href="javascript:void(0);" *ngIf="row.v_est_cot == 1">
+                        <i class="fa fa-clipboard"></i> Crear IS
+                      </a>
+                      <a class="dropdown-item" href="javascript:void(0);" (click)="disapprovedQuote(row.detalleid, row.code, i)"
+                         *ngIf="row.v_est_cot != 1 && row.v_est_cot != 2">
+                        <i class="fa fa-thumbs-o-down"></i> Rechazar
+                      </a>
+                      <a class="dropdown-item" href="javascript:void(0);" (click)="deleteQuote(row.id, row.detalleid, i)" *ngIf="row.v_est_cot != 1 && row.v_est_cot != 2">
+                        <i class="fa fa-trash"></i> Eliminar
+                      </a>
+                    </div>
+                  </div>
+                </td>
+                <td class="text-center align-middle">
+                  <span class="badge badge-pill badge-secondary" *ngIf="!row.vencido && row.v_est_cot == 0">Pendiente</span>
+                  <span class="badge badge-pill badge-success" *ngIf="row.v_est_cot == 1">Aceptado</span>
+                  <span class="badge badge-pill badge-danger" *ngIf="row.v_est_cot == 2">Rechazado</span>
+                  <span class="badge badge-pill badge-dark" *ngIf="row.vencido && row.v_est_cot == 0">Vencido</span>
+                </td>
+                <td class="text-center align-middle" style="width: 50px;">{{row.f_creacion|date:'dd/MM/yyyy'}}</td>
+                <td class="text-center align-middle" style="width: 100px;">
+                  <a href="javascript:void(0);" class="text-blue" (click)="viewPdf(row.detalleid)" style="font-size: 10px">{{row.code}}</a>
+                </td>
+                <!--td class="text-center align-middle" style="width: 50px;">
+                  <span *ngIf="row.f_enviado_comercial">{{row.f_enviado_comercial|date:'dd/MM/yyyy'}}</span>
+                  <span *ngIf="!row.f_enviado_comercial && row.sed_pricing">En espera</span>
+                </td-->
+                <td class="align-middle">{{row.name}}</td>
+                <td class="align-middle">{{row.commercial}}</td>
+                <td class="align-middle">{{row.client}}</td>
+                <td class="align-middle">{{row.origin.split(',')[0]}}</td>
+                <td class="align-middle">{{row.destiny.split(',')[0]}}</td>
+                <td class="text-center align-middle" style="width: 60px;">{{row.incoterm}}</td>
+                <td class="text-center align-middle hide" style="width: 60px;">{{row.via}}</td>
+                <td class="text-center align-middle" style="width: 60px;">
+                  <span class="badge badge-pill badge-secondary pr-2 pl-2" *ngIf="row.ts_aduana === '1'">Aduana</span>
+                  <span class="badge badge-pill badge-secondary pr-2 pl-2" *ngIf="row.ts_almacen === '1'">Almacén</span>
+                  <span class="badge badge-pill badge-secondary pr-2 pl-2" *ngIf="row.ts_carga === '1'">Carga</span>
+                  <span class="badge badge-pill badge-secondary pr-2 pl-2" *ngIf="row.ts_transporte === '1'">Transporte</span>
+                </td>
+                <td class="text-center align-middle">{{row.type}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #templateModalComments>
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Comentarios</h4>
+      <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <input type="text" name="comment" class="form-control mb-2" placeholder="Escriba aquí su comentario..."
+             [(ngModel)]="comment"
+             (keydown.enter)="saveComment()">
+      <table class="table table-sm table-bordered">
+        <thead>
+        <tr>
+          <th class="text-center align-middle">Fecha</th>
+          <th class="text-center align-middle">Ususario</th>
+          <th class="text-center align-middle">Comentario</th>
+          <td></td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let comment of comments; let i = index">
+          <td class="text-center">{{comment.created_at|date:'dd/MM/yyyy'}}</td>
+          <td>{{comment.created_by.full_name}}</td>
+          <td>{{comment.comment}}</td>
+          <td class="text-center">
+            <i class="fa fa-pencil text-primary c-pointer mr-1" (click)="editComment(i)"></i>
+            <i class="fa fa-trash text-danger c-pointer" (click)="deleteComment(i, comment.id)"></i>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-template>
+
+  <ng-template #templateModal>
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Observaciones</h4>
+      <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      {{observations}}
+    </div>
+  </ng-template>
+</section>

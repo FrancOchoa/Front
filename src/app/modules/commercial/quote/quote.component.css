@@ -1,0 +1,120 @@
+* {
+    font-size: 14px;
+}
+
+body {
+    line-height: normal;
+}
+
+.card-header, .card-body {
+    padding: 5px;
+}
+/*
+.form-control {
+    padding: 0px 4px;
+    height: calc(1.8125rem - 5px) !important;
+}*/
+
+.btn {
+    border-radius: 0px;
+}
+
+.btn:focus {
+    box-shadow: none !important;
+}
+
+.form-control,
+.input-group-sm>.form-control,
+.input-group-sm>.input-group-append>.btn,
+.input-group-sm>.input-group-append>.input-group-text,
+.input-group-sm>.input-group-prepend>.btn,
+.input-group-sm>.input-group-prepend>.input-group-text {
+    border-radius: 0px;
+    padding: 0px 4px;
+    height: calc(1.8125rem - 5px) !important;
+}
+
+.col-form-label {
+    line-height: normal;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    font-weight: bold;
+}
+
+textarea {
+    min-height: 50px;
+    max-height: 50px;
+    resize: none;
+}
+
+#observations {
+    min-height: 100px;
+    max-height: 100px;
+    width: 100%;
+}
+
+.custom-icon-search {
+    position: absolute;
+    right: 25px;
+    top: 5px;
+}
+
+#custom-input-search {
+    border: 1px solid #B71C1C;
+    background-color: #C62828;
+    border-radius: 20px;
+    padding: 12px;
+    color: #fff;
+}
+
+#custom-input-search::placeholder {
+    color: #fff;
+}
+
+.form-control:focus {
+    box-shadow: none;
+}
+
+#btn-language::after, #btn-document::after{
+    content: none;
+}
+
+.btn-create-group {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.custom-checkbox {
+    min-height: 0;
+}
+
+.custom-checkbox .custom-control-label::before {
+    border-radius: 0;
+}
+
+.custom-checkbox .custom-control-input:checked~.custom-control-label::before {
+    background-color: #dc3545!important;
+}
+
+.custom-control-label::after, .custom-control-label::before {
+    top: .10rem !important;
+    left: -1.4rem !important;
+}
+
+.custom-control-label {
+    position: absolute;
+}
+
+.event {
+    max-width: 25px;
+    min-width: 25px;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+.input-loading {
+    margin-top: -18px;
+    margin-right: 4px;
+}

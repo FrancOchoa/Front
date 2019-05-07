@@ -1,0 +1,1020 @@
+<!--section class="content-header">
+  <h1>
+    Cotizador
+    <small>Version 2.0</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+    <li class="active">Dashboard</li>
+  </ol>
+</section-->
+<section class="">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card rounded-0" style="height: 100vh;">
+        <div class="card-header bg-danger text-white rounded-0">
+          <div class="row">
+            <div class="col-sm-3">
+              <div class="form-group mb-0">
+                <input id="custom-input-search" type="text" class="form-control" name="searchText" placeholder="Buscar" (keydown.enter)="searchQuote($event)">
+                <i class="custom-icon-search fa fa-search"></i>
+              </div>
+            </div>
+            <div class="col-sm-9 text-right">
+              <div class="btn-group" dropdown>
+                <button id="btn-language" dropdownToggle type="button" class="btn btn-danger btn-sm dropdown-toggle" aria-controls="dropdown-language">
+                  {{language.text}} <span class="fa fa-language"></span>
+                </button>
+                <ul id="dropdown-language" *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="btn-language">
+                  <li role="menuitem">
+                    <a class="dropdown-item" href="javascript:void(0);" (click)="setLanguage('es')">Español</a>
+                  </li>
+                  <li role="menuitem">
+                    <a class="dropdown-item" href="javascript:void(0);" (click)="setLanguage('en')">Inglés</a>
+                  </li>
+                </ul>
+              </div>
+              <div id="btn-group-document" class="btn-group" dropdown #dropdown="bs-dropdown" [autoClose]="false">
+                <button id="btn-document" dropdownToggle type="button" class="btn btn-danger btn-sm dropdown-toggle" aria-controls="dropdown-document">
+                  Documentos <span class="fa fa-paperclip"></span>
+                </button>
+                <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="btn-document" style="min-width: 300px;">
+                  <li role="menuitem">
+                    <input id="selected-file" class="hide" type="file" multiple required (change)="fileSelectionEvent($event)">
+                    <a class="dropdown-item" href="javascript:void(0);" (click)="openSelectedFile()">
+                      <i class="fa fa-upload"></i> Subir Documento
+                    </a>
+                  </li>
+                  <li class="divider dropdown-divider" *ngIf="filesName.length > 0"></li>
+                  <li role="menuitem">
+                    <a class="dropdown-item pl-2 pr-2" href="javascript:void(0);" *ngFor="let name of filesName; let i = index">
+                      {{name | titlecase | slice:0:35}}<span *ngIf="name.length > 35">...</span> <i class="fa fa-trash m-0 float-right text-danger cursor-pointer" (click)="deleteFile(i)"></i>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <button type="button" class="btn btn-danger btn-sm" (click)="modal.show()">
+                <i class="fa fa-link"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body bg-light" style="height: 80%; overflow: auto; overflow-x: hidden;">
+          <div class="card rounded-0" [ngClass]="(showDataQuote)? 'show' : 'hide'">
+            <div class="card-body p-3">
+              <div class="row">
+                <div class="col">
+                  <div class="form-group row no-margin">
+                    <label class="col-form-label">Pago</label>
+                    <select name="" class="form-control form-control-sm" [(ngModel)]="objectQuote.payment_on_credit" autofocus>
+                      <option value="false">Contado</option>
+                      <option value="true">Crédito</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-group row no-margin">
+                    <label class="col-form-label">Vía</label>
+                    <select class="form-control form-control-sm" [(ngModel)]="objectQuote.via_id" (change)="selectedVia()">
+                      <option *ngFor="let item of vias" value="{{item.code}}">{{item.description}}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-group row no-margin">
+                    <label class="col-form-label">Servicio</label>
+                    <select class="form-control form-control-sm" [(ngModel)]="objectQuote.service_id">
+                      <option *ngFor="let item of services" value="{{item.code}}">{{item.description}}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-group row no-margin">
+                    <label class="col-form-label">Tipo</label>
+                    <select class="form-control form-control-sm"
+                            [(ngModel)]="objectQuote.service_type_id"
+                            [disabled]="objectQuote.via_id == 1">
+                      <option value="">-- Seleccione --</option>
+                      <option *ngFor="let item of services_types" value="{{item.code}}">{{item.description}}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-group row no-margin">
+                    <label class="col-form-label">Incoterm</label>
+                    <select class="form-control form-control-sm" [(ngModel)]="objectQuote.incoterm_id">
+                      <option value="">-- Seleccione --</option>
+                      <option *ngFor="let item of incoterms" value="{{item.code}}">{{item.description}}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-1">
+                  <div class="form-group row no-margin">
+                    <label class="col-form-label">Validez</label>
+                    <div class="input-group input-group-sm">
+                      <div class="input-group-prepend">
+                        <button class="btn btn-default btn-sm" [disabled]="objectQuote.expired_in == 0" (click)="changeValid(-10)"><i class="fa fa-minus"></i></button>
+                      </div>
+                      <input type="text" class="form-control form-control-sm text-center" [(ngModel)]="objectQuote.expired_in" appNumbersOnly/>
+                      <div class="input-group-append">
+                        <button class="btn btn-default btn-sm" (click)="changeValid(10)"><i class="fa fa-plus"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <hr>
+              <div class="row">
+                <div class="col-sm-4">
+                  <div class="form-group no-margin">
+                    <label class="col-form-label">Cliente</label>
+                    <input type="text" class="form-control form-control-sm" placeholder="Escriba aquí..."
+                           [(ngModel)]="objectQuote.client.name"
+                           [typeahead]="searchClients"
+                           [typeaheadOptionsLimit]="10"
+                           [typeaheadWaitMs]="300"
+                           typeaheadOptionField="name"
+                           (keyup)="setTextSearch($event)"
+                           (typeaheadOnSelect)="onSelectClient($event)"/>
+                    <i class="fa fa-fw fa-spinner fa-spin float-right input-loading hide"></i>
+                  </div>
+                </div>
+                <div class="col-sm-4">
+                  <div class="form-group no-margin">
+                    <label class="col-form-label">Contacto</label>
+                    <input type="text" class="form-control form-control-sm" placeholder="Escriba aquí..."
+                           [(ngModel)]="objectQuote.contact_name"/>
+                  </div>
+                </div>
+                <div class="col-sm-4">
+                  <div class="form-group no-margin">
+                    <label class="col-form-label">Comercial</label>
+                    <select class="form-control form-control-sm" [(ngModel)]="objectQuote.commercial_id">
+                      <option value="">-- Seleccione --</option>
+                      <option *ngFor="let item of commercials" value="{{item.code}}">{{item.description}}</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-sm-4">
+                  <div class="form-group no-margin">
+                    <label class="col-form-label">Producto</label>
+                    <input type="text" class="form-control form-control-sm" placeholder="Escriba aquí..."
+                           [(ngModel)]="objectQuote.product"/>
+                  </div>
+                </div>
+                <div class="col-sm-4">
+                  <div class="form-group no-margin">
+                    <label class="col-form-label">Origen</label>
+                    <ng-template #templatePort let-model="item" let-index="index">
+                      <img [src]="model.icon" class="mr-1" style="width: 16px"/>
+                      <span>{{model.text}}</span>
+                    </ng-template>
+                    <input id="search-origin" type="text" class="form-control" placeholder="Escriba aquí..."
+                           [(ngModel)]="objectQuote.origin.text"
+                           [typeaheadAsync]="true"
+                           [typeahead]="searchPorts"
+                           [typeaheadItemTemplate]="templatePort"
+                           [typeaheadOptionsLimit]="10"
+                           [typeaheadWaitMs]="300"
+                           typeaheadOptionField="text"
+                           (keyup)="setTextSearch($event)"
+                           (typeaheadOnSelect)="onSelectPortOrigin($event)"/>
+                    <i class="fa fa-fw fa-spinner fa-spin float-right input-loading hide"></i>
+                  </div>
+                </div>
+                <div class="col-sm-4">
+                  <div class="form-group no-margin">
+                    <label class="col-form-label">Destino</label>
+                    <input id="search-destination" type="text" class="form-control" placeholder="Escriba aquí..."
+                           [(ngModel)]="objectQuote.destination.text"
+                           [typeaheadAsync]="true"
+                           [typeahead]="searchPorts"
+                           [typeaheadItemTemplate]="templatePort"
+                           [typeaheadOptionsLimit]="10"
+                           [typeaheadWaitMs]="300"
+                           typeaheadOptionField="text"
+                           (keyup)="setTextSearch($event)"
+                           (typeaheadOnSelect)="onSelectPortDestination($event)"/>
+                    <i class="fa fa-fw fa-spinner fa-spin float-right input-loading hide"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!--*******************************************************************************************************************************************-->
+          <div class="text-center text-bold">
+            <i class="fa fa-angle-up text-bold" [ngClass]="(showDataQuote)? 'show' : 'hide'" (click)="showDataQuote = !showDataQuote" style="cursor: pointer;"></i>
+            <i class="fa fa-angle-down text-bold" [ngClass]="(!showDataQuote)? 'show' : 'hide'" (click)="showDataQuote = !showDataQuote" style="cursor: pointer;"></i>
+          </div>
+          <!--*******************************************************************************************************************************************-->
+          <div class="card rounded-0 p-3 mb-2">
+            <div class="table-responsive-sm">
+              <table class="table table-sm table-bordered">
+                <thead>
+                  <tr>
+                    <th colspan="9">Caso</th>
+                  </tr>
+                  <tr class="bg-secondary text-center text-white">
+                    <th style="width: 30%">Bulto</th>
+                    <th>Cant.</th>
+                    <th colspan="3" style="width: 20%">Dimensiones (Cm.)</th>
+                    <th>Peso (Kg.)</th>
+                    <th>Vol.</th>
+                    <th>C.B.M</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let case of cases; let i = index">
+                    <td>
+                      <select class="form-control form-control-sm"
+                              [(ngModel)]="case.package_id"
+                              [appAutoFocus]="focus">>
+                        <option value="">-- Seleccione --</option>
+                        <option *ngFor="let item of units_of_measured" value="{{item.code}}">{{item.description}}</option>
+                      </select>
+                    </td>
+                    <td>
+                      <input name="quantity" type="text" class="form-control form-control-sm text-right"
+                             [(ngModel)]="case.quantity"
+                             (keyup)="calculateVolume(i)"
+                             appNumbersOnly>
+                    </td>
+                    <td>
+                      <input name="large" type="text" class="form-control form-control-sm text-center" placeholder="Largo"
+                             [(ngModel)]="case.long"
+                             appNumbersOnly>
+                    </td>
+                    <td>
+                      <input name="height" type="text" class="form-control form-control-sm text-center" placeholder="Ancho"
+                             [(ngModel)]="case.width"
+                             appNumbersOnly>
+                    </td>
+                    <td>
+                      <input name="width" type="text" class="form-control form-control-sm text-center" placeholder="Alto"
+                             [(ngModel)]="case.height"
+                             (keyup)="calculateVolume(i)"
+                             appNumbersOnly>
+                    </td>
+                    <td>
+                      <input name="weight" type="text" class="form-control form-control-sm text-right"
+                             [(ngModel)]="case.weight"
+                             (keyup)="calculateVolume(i)"
+                             (keypress)="add(0, $event)"
+                             appNumbersOnly>
+                    </td>
+                    <td>
+                      <input name="volume" type="text" class="form-control form-control-sm text-right"
+                             [(ngModel)]="case.volume"
+                             (keyup)="calculateTotals()"
+                             (keypress)="add(0, $event)"
+                             appNumbersOnly>
+                    </td>
+                    <td>
+                      <input name="cbm" type="text" class="form-control form-control-sm text-right"
+                             [(ngModel)]="case.cbm"
+                             (keypress)="add(0, $event)"
+                             (keyup)="calculateTotals()"
+                             appNumbersOnly>
+                    </td>
+                    <td class="text-center">
+                      <button type="button" class="btn btn-sm btn-danger p-0 pl-1 pr-1" (click)="deleteField(0, i)">
+                        <i class="fa fa-remove"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <th colspan="5" class="text-right">Total</th>
+                    <th class="text-right"><span class="badge bg-dark text-white">{{objectQuote.total_weight|number:'1.2-2'}}</span></th>
+                    <th class="text-right"><span class="badge bg-dark text-white">{{objectQuote.total_volume|number:'1.2-2'}}</span></th>
+                    <th class="text-right"><span class="badge bg-dark text-white">{{objectQuote.total_cbm|number:'1.2-2'}}</span></th>
+                    <th></th>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          <div class="card rounded-0 p-3 mb-2">
+            <div class="table-responsive-sm">
+              <table class="table table-sm table-bordered">
+                <thead>
+                  <tr>
+                    <th colspan="11">
+                      <h6 class="m-0 text-bold">Transporte Internacional</h6>
+                      <div class="btn-create-group" *ngIf="creating_group_international_transport">
+                        <div class="input-group input-group-sm">
+                          <input type="text" class="form-control form-control-sm" [(ngModel)]="group_name">
+                          <div class="input-group-append">
+                            <button class="btn btn-dark btn-sm p-0 pl-1 pr-1" type="button" (click)="saveGroup(1)">
+                              <i class="fa fa-save"></i> Guardar
+                            </button>
+                            <button class="btn btn-danger btn-sm p-0 pl-1 pr-1" type="button" (click)="creatingGroup(1, false)">
+                              <i class="fa fa-remove"></i> Cancelar
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="btn-create-group" *ngIf="!creating_group_international_transport">
+                        <button class="btn btn-sm btn-danger p-0 pl-1 pr-1" (click)="creatingGroup(1, true)">
+                          <i class="fa fa-object-group"></i> Crear Grupo
+                        </button>
+                      </div>
+                    </th>
+                  </tr>
+                  <tr class="bg-secondary text-center text-white">
+                    <th></th>
+                    <th style="width: 30%">Concepto</th>
+                    <th style="width: 15%">Moneda</th>
+                    <th style="width: 15%">Factor</th>
+                    <th>Cantidad</th>
+                    <th>Tarifa</th>
+                    <th>T. Total</th>
+                    <th>Costo</th>
+                    <th>C. Total</th>
+                    <th>Margen</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody cdkDropList
+                       #todoList="cdkDropList"
+                       (cdkDropListDropped)="onDrop(1, $event)">
+                  <tr *ngFor="let internationalTransport of internationalTransports; let i = index"
+                      cdkDrag [cdkDragDisabled]="internationalTransport.create_group_active"
+                      [ngClass]="internationalTransport.color">
+                    <td class="event" cdkDragHandle *ngIf="!internationalTransport.create_group_active">
+                      <i class="fa fa-arrows-alt"></i>
+                    </td>
+                    <td class="event" *ngIf="internationalTransport.create_group_active">
+                      <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="checkbox-tnternational-transport-{{i}}"
+                               [(ngModel)]="internationalTransport.checked_active"
+                               (change)="deleteGroup(1, i, $event)">
+                        <label class="custom-control-label" for="checkbox-tnternational-transport-{{i}}"></label>
+                      </div>
+                    </td>
+                    <td>
+                      <input name="concept" type="text" class="form-control form-control-sm" placeholder="Escriba aquí..."
+                             [(ngModel)]="internationalTransport.concept.description"
+                             [appAutoFocus]="focus"
+                             [typeahead]="searchConcepts"
+                             [typeaheadOptionsLimit]="10"
+                             typeaheadOptionField="description"
+                             [typeaheadWaitMs]="300"
+                             (keyup)="setTextSearch($event)"
+                             (typeaheadOnSelect)="onSelectConcept(1, i, $event)">
+                      <i class="fa fa-fw fa-spinner fa-spin float-right input-loading hide"></i>
+                    </td>
+                    <td>
+                        <select class="form-control form-control-sm" [(ngModel)]="internationalTransport.currency_id">
+                          <option *ngFor="let item of currencies" value="{{item.code}}">{{item.description}}</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-control form-control-sm" [(ngModel)]="internationalTransport.factor_id">
+                          <option *ngFor="let item of factors" value="{{item.code}}">{{item.description}}</option>
+                        </select>
+                    </td>
+                    <td><input name="quantity" type="text" class="form-control form-control-sm text-right"
+                               [(ngModel)]="internationalTransport.quantity"
+                               (keydown.enter)="add(1, $event)"
+                               appNumbersOnly></td>
+                    <td><input name="rate" type="text" class="form-control form-control-sm text-right"
+                               [(ngModel)]="internationalTransport.rate"
+                               (keyup)="calculateTotalOfService(1, i)"
+                               (keydown.enter)="add(1, $event)"
+                               appNumbersOnly></td>
+                    <td><input name="rate" type="text" class="form-control form-control-sm text-right" readonly
+                               [(ngModel)]="internationalTransport.total_rate"
+                               (keydown.enter)="add(1, $event)"
+                               appNumbersOnly></td>
+                    <td><input name="cost" type="text" class="form-control form-control-sm text-right"
+                               [(ngModel)]="internationalTransport.cost"
+                               (keyup)="calculateTotalOfService(1, i)"
+                               (keydown.enter)="add(1, $event)"
+                               appNumbersOnly></td>
+                    <td><input name="cost" type="text" class="form-control form-control-sm text-right" readonly
+                               [(ngModel)]="internationalTransport.total_cost"
+                               (keydown.enter)="add(1, $event)"
+                               appNumbersOnly></td>
+                    <td><input name="margin" type="text" class="form-control form-control-sm text-right" readonly
+                               [(ngModel)]="internationalTransport.margin"
+                               (keydown.enter)="add(1, $event)"></td>
+                    <td class="text-center">
+                      <button type="button" class="btn btn-sm btn-danger p-0 pl-1 pr-1" (click)="deleteField(1, i)">
+                        <i class="fa fa-remove"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <th colspan="9" class="text-right">Sub Total</th>
+                    <th class="text-right"><span class="badge bg-dark text-white">{{objectQuote.total_international_transport|number:'1.2-2'}}</span></th>
+                    <th></th>
+                  </tr>
+                  <tr>
+                    <td colspan="11">
+                      <textarea name="" class="form-control form-control-sm" placeholder="Observaciones"
+                                [(ngModel)]="all_observations.international_transport.es"
+                                *ngIf="language.code ===  'es'"></textarea>
+                      <textarea name="" class="form-control form-control-sm" placeholder="Observaciones"
+                                [(ngModel)]="all_observations.international_transport.en"
+                                *ngIf="language.code ===  'en'"></textarea>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          <div class="card rounded-0 p-3 mb-2">
+            <div class="table-responsive-sm">
+              <table class="table table-sm table-bordered">
+                <thead>
+                  <tr>
+                    <th colspan="11">
+                      <h6 class="m-0 text-bold">Gastos en Origen</h6>
+                      <div class="btn-create-group" *ngIf="creating_group_expenses_at_origin">
+                        <div class="input-group input-group-sm">
+                          <input type="text" class="form-control form-control-sm" [(ngModel)]="group_name">
+                          <div class="input-group-append">
+                            <button class="btn btn-dark btn-sm p-0 pl-1 pr-1" type="button" (click)="saveGroup(2)">
+                              <i class="fa fa-save"></i> Guardar
+                            </button>
+                            <button class="btn btn-danger btn-sm p-0 pl-1 pr-1" type="button" (click)="creatingGroup(2, false)">
+                              <i class="fa fa-remove"></i> Cancelar
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="btn-create-group" *ngIf="!creating_group_expenses_at_origin">
+                        <button class="btn btn-sm btn-danger p-0 pl-1 pr-1" (click)="creatingGroup(2, true)">
+                          <i class="fa fa-object-group"></i> Crear Grupo
+                        </button>
+                      </div>
+                    </th>
+                  </tr>
+                  <tr class="bg-secondary text-center text-white">
+                    <th></th>
+                    <th style="width: 30%">Concepto</th>
+                    <th style="width: 15%">Moneda</th>
+                    <th style="width: 15%">Factor</th>
+                    <th>Cantidad</th>
+                    <th>Tarifa</th>
+                    <th>T. Total</th>
+                    <th>Costo</th>
+                    <th>C. Total</th>
+                    <th>Margen</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody cdkDropList
+                       #todoList="cdkDropList"
+                       (cdkDropListDropped)="onDrop(2, $event)">
+                  <tr *ngFor="let expenseAtOrigin of expensesAtOrigin; let i = index"
+                      [ngClass]="expenseAtOrigin.color"
+                      [cdkDragDisabled]="expenseAtOrigin.create_group_active"
+                      cdkDrag>
+                    <td class="event" cdkDragHandle *ngIf="!expenseAtOrigin.create_group_active">
+                      <i class="fa fa-arrows-alt"></i>
+                    </td>
+                    <td class="event" *ngIf="expenseAtOrigin.create_group_active">
+                      <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="checkbox-expenses-origin-{{i}}"
+                               [(ngModel)]="expenseAtOrigin.checked_active"
+                               (change)="deleteGroup(2, i, $event)">
+                        <label class="custom-control-label" for="checkbox-expenses-origin-{{i}}"></label>
+                      </div>
+                    </td>
+                    <td>
+                      <input name="concept" type="text" class="form-control form-control-sm" placeholder="Escriba aquí..."
+                             [(ngModel)]="expenseAtOrigin.concept.description"
+                             [appAutoFocus]="focus"
+                             [typeahead]="searchConcepts"
+                             [typeaheadOptionsLimit]="10"
+                             typeaheadOptionField="description"
+                             [typeaheadWaitMs]="300"
+                             (keyup)="setTextSearch($event)"
+                             (typeaheadOnSelect)="onSelectConcept(2, i, $event)">
+                      <i class="fa fa-fw fa-spinner fa-spin float-right input-loading hide"></i>
+                    </td>
+                    <td>
+                      <select class="form-control form-control-sm" [(ngModel)]="expenseAtOrigin.currency_id">
+                        <option *ngFor="let item of currencies" value="{{item.code}}">{{item.description}}</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select class="form-control form-control-sm" [(ngModel)]="expenseAtOrigin.factor_id">
+                        <option *ngFor="let item of factors" value="{{item.code}}">{{item.description}}</option>
+                      </select>
+                    </td>
+
+                    <td><input name="quantity" type="text" class="form-control form-control-sm text-right"
+                               [(ngModel)]="expenseAtOrigin.quantity"
+                               (keydown.enter)="add(2, $event)"
+                               appNumbersOnly></td>
+                    <td><input name="rate" type="text" class="form-control form-control-sm text-right"
+                               [(ngModel)]="expenseAtOrigin.rate"
+                               (keyup)="calculateTotalOfService(2, i)"
+                               (keydown.enter)="add(2, $event)"
+                               appNumbersOnly></td>
+                    <td><input name="rate" type="text" class="form-control form-control-sm text-right" readonly
+                               [(ngModel)]="expenseAtOrigin.total_rate"
+                               (keydown.enter)="add(2, $event)"
+                               appNumbersOnly></td>
+                    <td><input name="cost" type="text" class="form-control form-control-sm text-right"
+                               [(ngModel)]="expenseAtOrigin.cost"
+                               (keyup)="calculateTotalOfService(2, i)"
+                               (keydown.enter)="add(2, $event)"
+                               appNumbersOnly></td>
+                    <td><input name="cost" type="text" class="form-control form-control-sm text-right" readonly
+                               [(ngModel)]="expenseAtOrigin.total_cost"
+                               (keydown.enter)="add(2, $event)"
+                               appNumbersOnly></td>
+                    <td><input name="margin" type="text" class="form-control form-control-sm text-right" readonly
+                               [(ngModel)]="expenseAtOrigin.margin"
+                               (keydown.enter)="add(2, $event)"></td>
+                    <td class="text-center">
+                      <button type="button" class="btn btn-sm btn-danger p-0 pl-1 pr-1" (click)="deleteField(2, i)">
+                        <i class="fa fa-remove"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <th colspan="9" class="text-right">Sub Total</th>
+                    <th class="text-right"><span class="badge bg-dark text-white">{{objectQuote.total_expenses_origin|number:'1.2-2'}}</span></th>
+                    <th></th>
+                  </tr>
+                  <tr>
+                    <td colspan="11">
+                      <textarea name="" class="form-control form-control-sm" placeholder="Observaciones"
+                                [(ngModel)]="all_observations.expenses_origin.es"
+                                *ngIf="language.code ===  'es'"></textarea>
+                      <textarea name="" class="form-control form-control-sm" placeholder="Observaciones"
+                                [(ngModel)]="all_observations.expenses_origin.en"
+                                *ngIf="language.code ===  'en'"></textarea>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          <div class="card rounded-0 p-3 mb-2">
+            <div class="table-responsive-sm">
+              <table class="table table-sm table-bordered">
+                <thead>
+                  <tr>
+                    <th colspan="11">
+                      <h6 class="m-0 text-bold">Gastos en Destino</h6>
+                      <div class="btn-create-group" *ngIf="creating_group_expenses_at_destination">
+                        <div class="input-group input-group-sm">
+                          <input type="text" class="form-control form-control-sm" [(ngModel)]="group_name">
+                          <div class="input-group-append">
+                            <button class="btn btn-dark btn-sm p-0 pl-1 pr-1" type="button" (click)="saveGroup(3)">
+                              <i class="fa fa-save"></i> Guardar
+                            </button>
+                            <button class="btn btn-danger btn-sm p-0 pl-1 pr-1" type="button" (click)="creatingGroup(3, false)">
+                              <i class="fa fa-remove"></i> Cancelar
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="btn-create-group" *ngIf="!creating_group_expenses_at_destination">
+                        <button class="btn btn-sm btn-danger p-0 pl-1 pr-1" (click)="creatingGroup(3, true)">
+                          <i class="fa fa-object-group"></i> Crear Grupo
+                        </button>
+                      </div>
+                    </th>
+                  </tr>
+                  <tr class="bg-secondary text-center text-white">
+                    <th></th>
+                    <th style="width: 30%">Concepto</th>
+                    <th style="width: 15%">Moneda</th>
+                    <th style="width: 15%">Factor</th>
+                    <th>Cantidad</th>
+                    <th>Tarifa</th>
+                    <th>T. Total</th>
+                    <th>Costo</th>
+                    <th>C. Total</th>
+                    <th>Margen</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody cdkDropList
+                       #todoList="cdkDropList"
+                       (cdkDropListDropped)="onDrop(3, $event)">
+                  <tr *ngFor="let expenseAtDestination of expensesAtDestination; let i = index"
+                      [ngClass]="expenseAtDestination.color"
+                      [cdkDragDisabled]="expenseAtDestination.create_group_active"
+                      cdkDrag>
+                    <td class="event" cdkDragHandle *ngIf="!expenseAtDestination.create_group_active">
+                      <i class="fa fa-arrows-alt"></i>
+                    </td>
+                    <td class="event" *ngIf="expenseAtDestination.create_group_active">
+                      <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="checkbox-expenses-destination-{{i}}"
+                               [(ngModel)]="expenseAtDestination.checked_active"
+                               (change)="deleteGroup(3, i, $event)">
+                        <label class="custom-control-label" for="checkbox-expenses-destination-{{i}}"></label>
+                      </div>
+                    </td>
+                    <td>
+                      <input name="concept" type="text" class="form-control form-control-sm" placeholder="Escriba aquí..."
+                             [(ngModel)]="expenseAtDestination.concept.description"
+                             [appAutoFocus]="focus"
+                             [typeahead]="searchConcepts"
+                             [typeaheadOptionsLimit]="10"
+                             typeaheadOptionField="description"
+                             [typeaheadWaitMs]="300"
+                             (keyup)="setTextSearch($event)"
+                             (typeaheadOnSelect)="onSelectConcept(3, i, $event)">
+                      <i class="fa fa-fw fa-spinner fa-spin float-right input-loading hide"></i>
+                    </td>
+                    <td>
+                      <select class="form-control form-control-sm" [(ngModel)]="expenseAtDestination.currency_id">
+                        <option *ngFor="let item of currencies" value="{{item.code}}">{{item.description}}</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select class="form-control form-control-sm" [(ngModel)]="expenseAtDestination.factor_id">
+                        <option *ngFor="let item of factors" value="{{item.code}}">{{item.description}}</option>
+                      </select>
+                    </td>
+                    <td><input name="quantity" type="text" class="form-control form-control-sm text-right"
+                               [(ngModel)]="expenseAtDestination.quantity"
+                               (keydown.enter)="add(3, $event)"
+                               appNumbersOnly></td>
+                    <td><input name="rate" type="text" class="form-control form-control-sm text-right"
+                               [(ngModel)]="expenseAtDestination.rate"
+                               (keyup)="calculateTotalOfService(3, i)"
+                               (keydown.enter)="add(3, $event)"
+                               appNumbersOnly></td>
+                    <td><input name="rate" type="text" class="form-control form-control-sm text-right" readonly
+                               [(ngModel)]="expenseAtDestination.total_rate"
+                               (keydown.enter)="add(3, $event)"
+                               appNumbersOnly></td>
+                    <td><input name="cost" type="text" class="form-control form-control-sm text-right"
+                               [(ngModel)]="expenseAtDestination.cost"
+                               (keyup)="calculateTotalOfService(3, i)"
+                               (keydown.enter)="add(3, $event)"
+                               appNumbersOnly></td>
+                    <td><input name="cost" type="text" class="form-control form-control-sm text-right" readonly
+                               [(ngModel)]="expenseAtDestination.total_cost"
+                               (keydown.enter)="add(3, $event)"
+                               appNumbersOnly></td>
+                    <td><input name="margin" type="text" class="form-control form-control-sm text-right" readonly
+                               [(ngModel)]="expenseAtDestination.margin"
+                               (keydown.enter)="add(3, $event)"></td>
+                    <td class="text-center">
+                      <button type="button" class="btn btn-sm btn-danger p-0 pl-1 pr-1" (click)="deleteField(3, i)">
+                        <i class="fa fa-remove"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <th colspan="9" class="text-right">Sub Total</th>
+                    <th class="text-right"><span class="badge bg-dark text-white">{{objectQuote.total_expenses_destination|number:'1.2-2'}}</span></th>
+                    <th></th>
+                  </tr>
+                  <tr>
+                    <td colspan="11">
+                      <textarea name="" class="form-control form-control-sm" placeholder="Observaciones"
+                                [(ngModel)]="all_observations.expenses_destination.es"
+                                *ngIf="language.code ===  'es'"></textarea>
+                      <textarea name="" class="form-control form-control-sm" placeholder="Observaciones"
+                                [(ngModel)]="all_observations.expenses_destination.en"
+                                *ngIf="language.code ===  'en'"></textarea>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          <div class="card rounded-0 p-3 mb-2">
+            <div class="table-responsive-sm">
+              <table class="table table-sm table-bordered">
+                <thead>
+                  <tr>
+                    <th colspan="11">
+                      <h6 class="m-0 text-bold">Servicios Adicionales (Solo si aplica)</h6>
+                      <div class="btn-create-group" *ngIf="creating_group_additional_service">
+                        <div class="input-group input-group-sm">
+                          <input type="text" class="form-control form-control-sm" [(ngModel)]="group_name">
+                          <div class="input-group-append">
+                            <button class="btn btn-dark btn-sm p-0 pl-1 pr-1" type="button" (click)="saveGroup(4)">
+                              <i class="fa fa-save"></i> Guardar
+                            </button>
+                            <button class="btn btn-danger btn-sm p-0 pl-1 pr-1" type="button" (click)="creatingGroup(4, false)">
+                              <i class="fa fa-remove"></i> Cancelar
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="btn-create-group" *ngIf="!creating_group_additional_service">
+                        <button class="btn btn-sm btn-danger p-0 pl-1 pr-1" (click)="creatingGroup(4, true)">
+                          <i class="fa fa-object-group"></i> Crear Grupo
+                        </button>
+                      </div>
+                    </th>
+                  </tr>
+                  <tr class="bg-secondary text-center text-white">
+                    <th></th>
+                    <th style="width: 30%">Concepto</th>
+                    <th style="width: 15%">Moneda</th>
+                    <th style="width: 15%">Factor</th>
+                    <th>Cantidad</th>
+                    <th>Tarifa</th>
+                    <th>T. Total</th>
+                    <th>Costo</th>
+                    <th>C. Total</th>
+                    <th>Margen</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody cdkDropList
+                       #todoList="cdkDropList"
+                       (cdkDropListDropped)="onDrop(4, $event)">
+                  <tr *ngFor="let additionalService of additionalServices; let i = index"
+                      [ngClass]="additionalService.color"
+                      [cdkDragDisabled]="additionalService.create_group_active"
+                      cdkDrag>
+                    <td class="event" cdkDragHandle *ngIf="!additionalService.create_group_active">
+                      <i class="fa fa-arrows-alt"></i>
+                    </td>
+                    <td class="event" *ngIf="additionalService.create_group_active">
+                      <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="checkbox-additional-service-{{i}}"
+                               [(ngModel)]="additionalService.checked_active"
+                               (change)="deleteGroup(4, i, $event)">
+                        <label class="custom-control-label" for="checkbox-additional-service-{{i}}"></label>
+                      </div>
+                    </td>
+                    <td>
+                      <input name="concept" type="text" class="form-control form-control-sm" placeholder="Escriba aquí..."
+                             [(ngModel)]="additionalService.concept.description"
+                             [appAutoFocus]="focus"
+                             [typeahead]="searchConcepts"
+                             [typeaheadOptionsLimit]="10"
+                             typeaheadOptionField="description"
+                             [typeaheadWaitMs]="300"
+                             (keyup)="setTextSearch($event)"
+                             (typeaheadOnSelect)="onSelectConcept(4, i, $event)">
+                      <i class="fa fa-fw fa-spinner fa-spin float-right input-loading hide"></i>
+                    </td>
+                    <td>
+                      <select class="form-control form-control-sm" [(ngModel)]="additionalService.currency_id">
+                        <option *ngFor="let item of currencies" value="{{item.code}}">{{item.description}}</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select class="form-control form-control-sm" [(ngModel)]="additionalService.factor_id">
+                        <option *ngFor="let item of factors" value="{{item.code}}">{{item.description}}</option>
+                      </select>
+                    </td>
+                    <td><input name="quantity" type="text" class="form-control form-control-sm text-right"
+                               [(ngModel)]="additionalService.quantity"
+                               (keydown.enter)="add(4, $event)"
+                               appNumbersOnly></td>
+                    <td><input name="rate" type="text" class="form-control form-control-sm text-right"
+                               [(ngModel)]="additionalService.rate"
+                               (keyup)="calculateTotalOfService(4, i)"
+                               (keydown.enter)="add(4, $event)"
+                               appNumbersOnly></td>
+                    <td><input name="rate" type="text" class="form-control form-control-sm text-right" readonly
+                               [(ngModel)]="additionalService.total_rate"
+                               (keydown.enter)="add(4, $event)"
+                               appNumbersOnly></td>
+                    <td><input name="cost" type="text" class="form-control form-control-sm text-right"
+                               [(ngModel)]="additionalService.cost"
+                               (keyup)="calculateTotalOfService(4, i)"
+                               (keydown.enter)="add(4, $event)"
+                               appNumbersOnly></td>
+                    <td><input name="cost" type="text" class="form-control form-control-sm text-right" readonly
+                               [(ngModel)]="additionalService.total_cost"
+                               (keydown.enter)="add(4, $event)"
+                               appNumbersOnly></td>
+                    <td><input name="margin" type="text" class="form-control form-control-sm text-right" readonly
+                               [(ngModel)]="additionalService.margin"
+                               (keydown.enter)="add(4, $event)"></td>
+                    <td class="text-center">
+                      <button type="button" class="btn btn-sm btn-danger p-0 pl-1 pr-1" (click)="deleteField(4, i)">
+                        <i class="fa fa-remove"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <th colspan="9" class="text-right">Sub Total</th>
+                    <th class="text-right"><span class="badge bg-dark text-white">{{objectQuote.total_additional_services|number:'1.2-2'}}</span></th>
+                    <th></th>
+                  </tr>
+                  <tr>
+                    <td colspan="11">
+                      <textarea name="" class="form-control form-control-sm" placeholder="Observaciones"
+                                [(ngModel)]="all_observations.additional_services.es"
+                                *ngIf="language.code ===  'es'"></textarea>
+                      <textarea name="" class="form-control form-control-sm" placeholder="Observaciones"
+                                [(ngModel)]="all_observations.additional_services.en"
+                                *ngIf="language.code ===  'en'"></textarea>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          <div class="card rounded-0 p-3 mb-2">
+            <div class="table-responsive-sm">
+              <table class="table table-sm table-bordered">
+                <thead>
+                <tr>
+                  <th>Observaciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td>
+                    <textarea id="observations" name="" class="form-control form-control-sm" placeholder="Observaciones"
+                                [(ngModel)]="all_observations.observation"></textarea>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <button class="btn btn-danger btn-lg btn-block" (click)="sendPricing()">
+                <i class="fa fa-send-o"></i> Enviar a Pricing
+              </button>
+            </div>
+            <div class="col">
+              <button class="btn btn-danger btn-lg btn-block" (click)="saveQuote()">
+                <i class="fa fa-save"></i> Generar Cotización
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-footer bg-danger text-white rounded-0">
+          <div class="row">
+            <div class="col-sm-6">
+              Kg <span class="badge bg-dark text-white">{{objectQuote.total_weight|number:'1.2-2'}}</span>
+              Kg/Vol <span class="badge bg-dark text-white">{{objectQuote.total_volume|number:'1.2-2'}}</span>
+              CBM <span class="badge bg-dark text-white">{{objectQuote.total_cbm|number:'1.2-2'}}</span>
+              TON <span class="badge bg-dark text-white">{{objectQuote.total_ton|number:'1.2-2'}}</span>
+            </div>
+            <div class="col-sm-6 text-right">
+              Profit:
+              <span class="badge bg-dark text-white">$ {{objectQuote.total_profit|number:'1.2-2'}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" bsModal #modal="bs-modal" tabindex="-1" role="dialog" aria-labelledby="dialog-nested-name1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header p-2 pl-4 pr-4">
+          <h4 id="dialog-nested-name1" class="modal-title pull-left">Desaduanaje de la Mercancía</h4>
+          <button type="button" class="close pull-right" aria-label="Close" (click)="modal.hide()">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <table class="table table-sm no-border">
+            <thead>
+              <tr>
+                <td colspan="3" class="text-center text-secondary"><h6>Valor Imponible</h6></td>
+                <th style="width: 15%"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="3" class="text-right"><label>T.C. Ref</label></td>
+                <td>
+                  <input [(ngModel)]="tax.t_c_ref" type="text" class="form-control form-control-sm text-right" name="ref">
+                </td>
+              </tr>
+              <tr>
+                <td colspan="3" class="text-right"><label>Valor FOB</label></td>
+                <td>
+                  <input [(ngModel)]="tax.fob" type="text" class="form-control form-control-sm text-right" name="fob"
+                         (keyup)="updateCif()">
+                </td>
+              </tr>
+              <tr>
+                <td colspan="3" class="text-right"><label>Valor Flete</label></td>
+                <td>
+                  <input [(ngModel)]="tax.flete" type="text" class="form-control form-control-sm text-right" name="freight"
+                         (keyup)="updateCif()">
+                </td>
+              </tr>
+              <tr>
+                <td colspan="3" class="text-right"><label>Valor Seguro</label></td>
+                <td>
+                  <input [(ngModel)]="tax.secure" type="text" class="form-control form-control-sm text-right" name="secure"
+                         (keyup)="updateCif()">
+                </td>
+              </tr>
+              <tr>
+                <th colspan="3" class="text-right"><label>Valor C.I.F.</label></th>
+                <th><span class="badge bg-dark text-white text-right" style="width: 100%">{{tax.cif|number:'1.2-2'}}</span></th>
+              </tr>
+            </tbody>
+          </table>
+          <table class="table table-sm no-border">
+            <thead>
+              <tr>
+                <td colspan="4" class="text-center text-secondary"><h6>Gravámenes Vígentes</h6></td>
+              </tr>
+              <tr>
+                <th class="text-center">Concepto</th>
+                <th class="text-center" style="width: 15%">Tasa %</th>
+                <th class="text-center">Moneda</th>
+                <th class="text-center" style="width: 15%">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="text-right"><label>Ad Valorem</label></td>
+                <td>
+                  <input [(ngModel)]="tax.rate_valorem" type="text" class="form-control form-control-sm text-right">
+                </td>
+                <td>
+                  <select class="form-control form-control-sm" [(ngModel)]="tax.currency_valorem">
+                    <option *ngFor="let item of currencies" value="{{item.code}}">{{item.description}}</option>
+                  </select>
+                </td>
+                <td>
+                  <input [(ngModel)]="tax.total_valorem" type="text" class="form-control form-control-sm text-right"
+                         (keyup)="updateSubTotal()">
+                </td>
+              </tr>
+              <tr>
+                <td class="text-right"><label>I.G.V. / IVA</label></td>
+                <td>
+                  <input [(ngModel)]="tax.rate_iva" type="text" class="form-control form-control-sm text-right">
+                </td>
+                <td>
+                  <select class="form-control form-control-sm" [(ngModel)]="tax.currency_iva">
+                    <option *ngFor="let item of currencies" value="{{item.code}}">{{item.description}}</option>
+                  </select>
+                </td>
+                <td>
+                  <input [(ngModel)]="tax.total_iva" type="text" class="form-control form-control-sm text-right"
+                         (keyup)="updateSubTotal()">
+                </td>
+              </tr>
+              <tr>
+                <td class="text-right"><label>Percepción</label></td>
+                <td>
+                  <input [(ngModel)]="tax.rate_perception" type="text" class="form-control form-control-sm text-right">
+                </td>
+                <td>
+                  <select class="form-control form-control-sm" [(ngModel)]="tax.currency_perception">
+                    <option *ngFor="let item of currencies" value="{{item.code}}">{{item.description}}</option>
+                  </select>
+                </td>
+                <td>
+                  <input [(ngModel)]="tax.total_perception" type="text" class="form-control form-control-sm text-right"
+                         (keyup)="updateSubTotal()">
+                </td>
+              </tr>
+              <tr>
+                <th colspan="3" class="text-right">Sub Total</th>
+                <th><span class="badge bg-dark text-white text-right" style="width: 100%">{{tax.sub_total|number:'1.2-2'}}</span></th>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <textarea name="" class="form-control form-control-sm" placeholder="Observaciones"
+                    [(ngModel)]="all_observations.tax.es"
+                    *ngIf="language.code ===  'es'"></textarea>
+          <textarea name="" class="form-control form-control-sm" placeholder="Observaciones"
+                    [(ngModel)]="all_observations.tax.en"
+                    *ngIf="language.code ===  'en'"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>

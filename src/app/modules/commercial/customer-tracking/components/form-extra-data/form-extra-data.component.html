@@ -1,0 +1,42 @@
+<div id="side-three" class="side-three">
+
+  <!-- Heading -->
+  <div class="row newMessage-heading">
+    <div class="row newMessage-main">
+      <div class="col-2 newMessage-back" (click)="close()">
+        <i class="fa fa-arrow-left" aria-hidden="true"></i>
+      </div>
+      <div class="col-10 newMessage-title">
+        Datos Extra
+      </div>
+    </div>
+  </div>
+  <!-- Heading End -->
+
+  <!-- sideBar -->
+  <div class="content compose-sideBar">
+    <div class="col-12">
+      <div class="input-group mt-2">
+        <div class="custom-file">
+          <input type="file" name="files[]" class="custom-file-input" multiple="multiple"
+                 accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                 (change)="sendExtraData($event)">
+          <label class="custom-file-label c-pointer">Archivos</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="row p-3">
+      <div class="col-4 mb-2" *ngFor="let item of extra_data, let i = index">
+        <div class="card text-center">
+          <i class="file-icon fa fa-file-excel-o text-success mt-2" style="font-size: 50px;"></i>
+          <div class="card-body p-2">
+            <p class="card-text mb-1" style="font-size: 12px">{{item.original_name | slice:0:12}}<span *ngIf="item.original_name.length > 12">...</span></p>
+            <a [href]="item.url_download" class="card-link" target="_blank"><i class="fa fa-download text-info"></i></a>
+            <a href="javascript:void(0);" class="card-link" (click)="deleteFile(item.id, i)" *ngIf="item.id"><i class="fa fa-trash text-danger"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

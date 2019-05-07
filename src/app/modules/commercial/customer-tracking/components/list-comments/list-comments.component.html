@@ -1,0 +1,59 @@
+<div id="comment-box" style="overflow: hidden; position: relative; height: calc(100% - 60px) !important;">
+  <div #scrollMe id="my-scroll-comments" class="direct-chat-messages" [scrollTop]="scrollMe.scrollHeight" (scroll)="updateScrollHeight(scrollMe.scrollHeight)">
+    <div [ngClass]="{'direct-chat-success' : comment.type === 'call', 'direct-chat-warning' : comment.type === 'cite'}" *ngFor="let comment of comments">
+      <div class="direct-chat-msg right">
+        <div class="direct-chat-info clearfix">
+          <span class="direct-chat-name pull-left" *ngIf="comment.type != 'file'">
+            <i class="{{comment.icon}}" style="margin-right: 5px"></i>
+
+            <a href="javascript:void(0);" (click)="toggle(dp)" [attr.aria-expanded]="dp.isOpen" style="margin-right: 5px" *ngIf="!comment.date">
+              <i class="fas fa-calendar"></i>
+            </a>
+            <input type="text"
+                   class="form-control-plaintext"
+                   #dp="bsDatepicker"
+                   bsDatepicker
+                   (onHidden)="updateDate(comment, dp)"
+                   [bsConfig]="{ dateInputFormat: 'DD/MM/YYYY', containerClass: 'theme-red', locale: 'es' }"
+                   style="padding: 0px; width: 68px; display: inline-block; cursor: auto;"
+                   placeholder="dd/mm/yyyy"
+                   value="{{comment.date | date:'dd/MM/yyyy'}}"
+                   [bsValue]="comment.date"
+                   [minDate]="minDate"
+                   placement="left"
+                   disabled
+                   readonly>
+
+            <ng-template #popTemplate>
+              <timepicker [(ngModel)]="comment.hour" [showMeridian]="false" (ngModelChange)="changedTime(comment, $event)"></timepicker>
+              <button class="btn btn-danger btn-block" (click)="updateTime(comment)">Guardar</button>
+            </ng-template>
+            <a href="javascript:void(0);" style="margin-right: 5px" [popover]="popTemplate" [outsideClick]="true" (click)="setTime(comment)" placement="right" container="body">
+              <i class="fas fa-clock-o"></i>
+            </a>
+            <input id="time"
+                   type="text"
+                   class="form-control-plaintext"
+                   style="padding: 0px; width: 68px; display: inline-block; cursor: auto;"
+                   placeholder="hh:mm"
+                   value="{{comment.hour}}"
+                   readonly
+                   disabled>
+          </span>
+          <span class="direct-chat-timestamp pull-right">
+            <span class="text-bold text-blue" style="font-size: 10px" *ngIf="comment.user_id != created_by">{{comment.user.full_name|titlecase}}</span>
+            {{comment.created_at | date:'dd/MM/yyyy H:mm'}}
+          </span>
+        </div>
+        <div class="direct-chat-text text-right mr-0 mt-0" *ngIf="comment.type != 'file'">
+          <span class="d-block" style="font-size: 12px">{{comment.comment}}</span>
+        </div>
+        <div class="direct-chat-text text-right mr-0 mt-0" *ngIf="comment.type === 'file'">
+          <div *ngFor="let file of comment.files">
+            <a href="{{file.url_download}}" target="_blank" style="font-size: 12px">{{file.original_name}}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

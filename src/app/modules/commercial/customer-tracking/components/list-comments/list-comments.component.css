@@ -1,0 +1,39 @@
+@import url(https://unpkg.com/ngx-bootstrap/datepicker/bs-datepicker.css);
+
+.direct-chat-text { white-space: pre-wrap; }
+
+#comment-box {
+
+}
+#my-scroll-comments {
+    height: auto !important;
+    position: absolute !important;
+    width: 100% !important;
+    bottom: 0px !important;
+    padding: 0px 50px;
+    max-height: 100% !important;
+}
+
+::ng-deep bs-daterangepicker-container {
+    top: 45px !important;
+}
+
+.direct-chat-success .right > .direct-chat-text {
+    background: #A5D6A7;
+    border-color: #A5D6A7;
+    color: #000000;
+}
+
+.direct-chat-success .right > .direct-chat-text:after, .direct-chat-success .right > .direct-chat-text:before {
+    border-left-color: #A5D6A7;
+}
+
+.direct-chat-warning .right > .direct-chat-text {
+    background: #FFCC80;
+    border-color: #FFCC80;
+    color: #000000;
+}
+
+.direct-chat-warning .right > .direct-chat-text:after, .direct-chat-warning .right > .direct-chat-text:before {
+    border-left-color: #FFCC80;
+}

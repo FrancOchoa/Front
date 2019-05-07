@@ -1,0 +1,59 @@
+<div class="container-fluid app">
+  <div class="row app-one">
+
+    <div class="col-4 side">
+      <app-list-clients></app-list-clients>
+      <app-form-register></app-form-register>
+      <app-form-extra-data></app-form-extra-data>
+    </div>
+
+    <!-- New Message Sidebar End -->
+
+    <!-- Conversation Start -->
+    <div class="col-8 conversation" [ngClass]="{'hide': !visible}">
+      <!-- Heading -->
+      <div class="row heading">
+        <div class="col-1 heading-avatar">
+          <div class="heading-avatar-icon text-center">
+            <img id="image-client" src="" alt="icon" style="width: 45px; height: 45px; border-radius: 50%;">
+            <i class="fa fa-camera" (click)="openInputFile()"></i>
+            <input type="file" name="file" id="input-file" class="hide" (change)="updateImage($event)" accept="image/png, image/jpeg">
+          </div>
+        </div>
+        <div class="col-9">
+          <div class="row">
+            <div class="col-12 text-bold">{{name_customer | titlecase}}</div>
+          </div>
+          <div class="row" style="font-size: 12px;">
+            <div class="col-3"><b>RUC:</b> {{ruc}}</div>
+            <div class="col-3"><b>Teléfono:</b> {{phone}}</div>
+            <div class="col-6"><b>E-mail:</b> {{email}}</div>
+          </div>
+        </div>
+        <div class="col-2  heading-dot text-right">
+          <i class="fa fa-calendar fa-2x text-white" (click)="showCalendar()"></i>
+        </div>
+      </div>
+      <!-- Heading End -->
+
+      <!-- Message Box -->
+      <app-list-comments></app-list-comments>
+      <!-- Message Box End -->
+
+      <!-- Reply Box -->
+      <app-form-comment></app-form-comment>
+      <!-- Reply Box End -->
+    </div>
+    <!-- Conversation End -->
+
+    <div class="col-8" [ngClass]="{'show': !visible}">
+      <div class="row" style="height: 100%;">
+        <div *ngIf="calendarOptions">
+          <ng-fullcalendar #ucCalendar [options]="calendarOptions" [(eventsModel)]="listDataCalendar" (eventClick)="eventClick($event.detail)"></ng-fullcalendar>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- App One End -->
+</div>

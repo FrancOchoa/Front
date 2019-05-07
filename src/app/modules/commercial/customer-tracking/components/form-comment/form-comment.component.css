@@ -1,0 +1,13 @@
+#comment {
+    max-height: 59px;
+    resize: none;
+}
+
+.table td {
+    padding: 0px;
+    vertical-align: middle;
+    text-align: center !important;
+}
+
+.btn-warning { background-color: #FFCC80; }
+.btn-success { background-color: #A5D6A7; }

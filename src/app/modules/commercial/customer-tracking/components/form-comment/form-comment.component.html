@@ -1,0 +1,47 @@
+<div class="row reply">
+
+  <div *ngIf="fileUpload.status == 'progress'" class="col-sm-12" style="position: absolute; bottom: 65px;">
+    <div class="mb-2">
+      <progressbar max="100" [value]="fileUpload.message" type="info" [striped]="true" [animate]="true"><i>{{fileUpload.message}}%</i></progressbar>
+    </div>
+  </div>
+
+
+  <table class="table">
+    <tr>
+      <td>
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i id="face" class="far fa-laugh fa-2x"></i>
+        </a>
+        <ul id="list-ranking" class="dropdown-menu dropdown-menu-right" style="top: -221px;  min-width: 35px;">
+          <li><i class="far fa-smile-beam" (click)="moods(5, $event)"></i></li>
+          <li><i class="far fa-smile" (click)="moods(4, $event)"></i></li>
+          <li><i class="far fa-meh" (click)="moods(3, $event)"></i></li>
+          <li><i class="far fa-frown" (click)="moods(2, $event)"></i></li>
+          <li><i class="far fa-angry" (click)="moods(1, $event)"></i></li>
+        </ul>
+      </td>
+      <td>
+        <div class="input-group">
+          <span class="input-group-prepend">
+            <div class="dropdown">
+              <button class="btn btn-default dropdown-toggle" type="button" id="btn-options" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="height: 59px;">
+                <span id="text-option" class="text-black">Comentario </span> <i class="fa fa-chevron-down"></i>
+              </button>
+              <div class="dropdown-menu" aria-labelledby="btn-options" style="top: -70px;">
+                <a href="javascript:void(0);" class="dropdown-item" (click)="selectedType('cite')">Cita</a>
+                <a href="javascript:void(0);" class="dropdown-item" (click)="selectedType('call')">Llamada</a>
+                <a href="javascript:void(0);" class="dropdown-item" (click)="selectedType('comment')">Comentario</a>
+              </div>
+            </div>
+          </span>
+          <textarea [(ngModel)]="comment.comment" class="form-control" rows="2" id="comment" placeholder="Escribe un mensaje aquí..." (keydown)="addComment($event)"></textarea>
+        </div>
+      </td>
+      <td>
+        <i class="fa fa-paperclip fa-2x" aria-hidden="true" (click)="openInputFile()"></i>
+        <input type="file" name="files[]" id="input-files" class="hide" multiple="multiple" (change)="sendData($event)">
+      </td>
+    </tr>
+  </table>
+</div>

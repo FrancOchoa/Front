@@ -1,0 +1,225 @@
+<section class="container-fluid">
+  <div class="row">
+    <div class="col">
+      <div class="card rounded-0 p-3 mb-2 mt-2">
+        <div class="row">
+          <div class="col-11">
+            <div class="form-group no-margin">
+              <input type="text" name="search" class="form-control form-control-sm"
+                     placeholder="Buscar, ejemplo(texto|texto)"
+                     autocomplete="off"
+                     [(ngModel)]="search_text"
+                     (keydown.enter)="search()">
+              <i class="fa fa-fw fa-search input-loading text-gray" style="position: absolute; right: 15px; top: 25px; z-index: 100"></i>
+            </div>
+          </div>
+          <div class="col-1 pl-0">
+            <div class="form-group no-margin">
+                <button class="btn btn-primary btn-sm btn-block" (click)="addRow()"><i class="fa fa-plus"></i> Nuevo</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="card rounded-0 p-1 mb-2 mt-2">
+        <div class="table-responsive" style="min-height: 57vh;">
+          <table class="table table-sm table-bordered custom-table mb-1">
+            <thead>
+            <tr class="bg-secondary text-center text-white">
+              <th>Almacenaje/Terminal</th>
+              <th>Via</th>
+              <th>Ciudad</th>
+              <th>Tipo Almacen</th>
+              <th>Regimen</th>
+              <th>Moneda</th>
+              <th>Concepto</th>
+              <th>Valor</th>
+              <th>Factor</th>
+              <th>Fecha</th>
+              <th style="width: 95px;"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <ng-container *ngFor="let item of dataPager; let i = index">
+              <tr *ngIf="item.edit">
+                <td>
+                  <input name="city" type="text" class="form-control form-control-sm" placeholder="Escriba aquí..." autocomplete="off"
+                         [(ngModel)]="item.terminal.description"
+                         [typeahead]="searchStorageTerminals"
+                         [typeaheadOptionsLimit]="10"
+                         typeaheadOptionField="description"
+                         [typeaheadWaitMs]="300"
+                         (keyup)="setTextSearch($event, i)"
+                         (typeaheadOnSelect)="onSelect($event, 1, i)">
+                  <i class="fa fa-fw fa-spinner fa-spin float-right input-loading hide"></i>
+                </td>
+                <td>
+                  <select name="via" class="form-control form-control-sm" [(ngModel)]="item.via_id">
+                    <ng-container *ngFor="let item of vias">
+                      <option value="{{item.code}}" *ngIf="item.code != 3">{{item.description}}</option>
+                    </ng-container>
+                  </select>
+                </td>
+                <td>
+                  <input name="city" type="text" class="form-control form-control-sm" placeholder="Escriba aquí..." autocomplete="off"
+                         [(ngModel)]="item.city.description"
+                         [typeahead]="searchCity"
+                         [typeaheadOptionsLimit]="10"
+                         typeaheadOptionField="description"
+                         [typeaheadWaitMs]="300"
+                         (keyup)="setTextSearch($event, i)"
+                         (typeaheadOnSelect)="onSelect($event, 2, i)">
+                  <i class="fa fa-fw fa-spinner fa-spin float-right input-loading hide"></i>
+                </td>
+                <td>
+                  <select name="type_storage" class="form-control form-control-sm" [(ngModel)]="item.type_storage">
+                    <option value="DEPOSITO TEMPORAL">DEPOSITO TEMPORAL</option>
+                    <option value="ALMACEN SIMPLE">ALMACEN SIMPLE</option>
+                  </select>
+                </td>
+                <td>
+                  <select name="regimen" class="form-control form-control-sm" [(ngModel)]="item.regimen">
+                    <option value="IMPORTACIÓN">IMPORTACIÓN</option>
+                    <option value="EXPORTACIÓN">EXPORTACIÓN</option>
+                  </select>
+                </td>
+                <td style="max-width: 150px;">
+                  <select name="currency" class="form-control form-control-sm" [(ngModel)]="item.currency_id">
+                    <option value="{{item.code}}" *ngFor="let item of currencies">{{item.description}}</option>
+                  </select>
+                </td>
+                <td>
+                  <input name="concept" type="text" class="form-control form-control-sm" placeholder="Escriba aquí..." autocomplete="off"
+                         [(ngModel)]="item.concept">
+                </td>
+                <td style="max-width: 80px;">
+                  <input type="text" class="form-control form-control-sm text-right" autocomplete="off"
+                         [(ngModel)]="item.value" appNumbersOnly>
+                </td>
+                <td style="max-width: 130px;">
+                  <select name="factor" class="form-control form-control-sm" [(ngModel)]="item.factor_id">
+                    <option value="{{item.code}}" *ngFor="let item of factors">{{item.description}}</option>
+                  </select>
+                </td>
+                <td style="max-width: 100px;">
+                  <input type="text"
+                         class="form-control form-control-sm text-center"
+                         placeholder="Seleccione"
+                         autocomplete="off"
+                         [(ngModel)]="item.date"
+                         #drp="bsDatepicker"
+                         bsDatepicker
+                         [bsConfig]="{ dateInputFormat: 'DD/MM/YYYY', containerClass: 'theme-red', locale: 'es' }"
+                         (keydown.enter)="addRow()">
+                </td>
+                <td>
+                  <div class="dropdown">
+                    <button class="btn btn-default btn-sm dropdown-toggle p-0 pr-1 pl-1" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Opciones
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                      <a class="dropdown-item" href="javascript:void(0);" (click)="openModal(template, i)" *ngIf="item.edit">
+                        <i class="fa fa-eye"></i> Observación
+                      </a>
+                      <div class="dropdown-divider mt-0 mb-1" *ngIf="item.id > 0"></div>
+                      <a class="dropdown-item" href="javascript:void(0);" (click)="update(i)" *ngIf="item.id > 0">
+                        <i class="fa fa-save"></i> Actualizar
+                      </a>
+                      <a class="dropdown-item" href="javascript:void(0);" (click)="cancelEdition(i)" *ngIf="item.id > 0 && item.edit">
+                        <i class="fa fa-close"></i> Cancelar
+                      </a>
+                      <div class="dropdown-divider mt-0 mb-1" *ngIf="item.id > 0"></div>
+                      <a class="dropdown-item" href="javascript:void(0);" (click)="cloneRow(i)">
+                        <i class="fa fa-clone"></i> Clonar
+                      </a>
+                      <a class="dropdown-item" href="javascript:void(0);" (click)="deleteRow(i)" *ngIf="item.id === 0">
+                        <i class="fa fa-trash"></i> Eliminar
+                      </a>
+                      <a class="dropdown-item" href="javascript:void(0);" (click)="delete(item.id, i)" *ngIf="item.id > 0">
+                        <i class="fa fa-trash"></i> Eliminar
+                      </a>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <tr *ngIf="!item.edit">
+                <td class="align-middle">{{item.terminal.description}}</td>
+                <td class="align-middle">{{ findInArray(vias, item.via_id) }}</td>
+                <td class="align-middle">{{item.city.description}}</td>
+                <td class="align-middle">{{item.type_storage}}</td>
+                <td class="align-middle">{{item.regimen}}</td>
+                <td class="align-middle">{{ findInArray(currencies, item.currency_id) }}</td>
+                <td class="align-middle">{{item.concept}}</td>
+                <td class="align-middle">{{item.value}}</td>
+                <td class="align-middle">{{ findInArray(factors, item.factor_id) }}</td>
+                <td class="align-middle">{{item.date|date:'dd/MM/yyyy'}}</td>
+                <td class="align-middle">
+                  <div class="dropdown">
+                    <button id="dropdownMenuButton" class="btn btn-default btn-sm dropdown-toggle p-0 pr-1 pl-1"
+                            type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Opciones
+                    </button>
+                    <div id="dropdown-menu-options" class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                      <a class="dropdown-item" href="javascript:void(0);" (click)="openModal(template, i)">
+                        <i class="fa fa-eye"></i> Observación
+                      </a>
+                      <a class="dropdown-item" href="javascript:void(0);" (click)="cloneRow(i)">
+                        <i class="fa fa-clone"></i> Clonar
+                      </a>
+                      <a class="dropdown-item" href="javascript:void(0);" (click)="editRow(i)">
+                        <i class="fa fa-edit"></i> Editar
+                      </a>
+                      <a class="dropdown-item" href="javascript:void(0);" (click)="delete(item.id, i)">
+                        <i class="fa fa-trash"></i> Eliminar
+                      </a>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </ng-container>
+            <tr *ngIf="dataPager.length === 0">
+              <td colspan="11">No hay datos para mostrar</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="row" *ngIf="!registering && total_registers > 0">
+            <div class="col-6 m-auto">
+              Total de registros {{total_registers}}
+            </div>
+            <div class="col-6">
+              <pagination class="pull-right mb-0"
+                          [boundaryLinks]="true" [totalItems]="total_registers" (pageChanged)="pageChanged($event)"
+                          [rotate]="true" [maxSize]="10"
+                          previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;"></pagination>
+            </div>
+        </div>
+        <button type="button" class="btn btn-danger btn-block" (click)="save()" *ngIf="registering">
+          <i class="fa fa-save"></i> Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #template>
+    <div class="modal-header pb-0 pt-2">
+      <h4 class="modal-title">Observación</h4>
+      <button type="button" class="close pull-right" aria-label="Close" (click)="closeModal()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body pt-1 pb-1">
+      <textarea name="observations" rows="6" style="resize: none" class="form-control" placeholder="Escriba aquí..."
+                [(ngModel)]="dataPager[index].observations" [appAutoFocus]="true"></textarea>
+    </div>
+    <div class="modal-footer pt-1 pb-1" *ngIf="dataPager[index].id > 0">
+      <button type="button" class="btn btn-danger btn-sm btn-block" (click)="update(index, {observations: dataPager[index].observations})">
+        <i class="fa fa-save"></i> Actualizar
+      </button>
+    </div>
+  </ng-template>
+</section>

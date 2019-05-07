@@ -1,0 +1,23 @@
+#options {
+    color: #93918f;
+}
+
+.list-group-item:first-child {
+    border-radius: 0px;
+}
+
+.icon-user {
+    width: 50px;
+    height: 50px;
+    float: left;
+    margin-right: 10px;
+    border-radius: 50%;
+}
+
+.c-pointer {
+    cursor: pointer;
+}
+
+.c-pointer:hover {
+    background-color: #f2f2f2;
+}

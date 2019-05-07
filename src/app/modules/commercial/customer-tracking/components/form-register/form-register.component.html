@@ -1,0 +1,93 @@
+<div id="side-two" class="side-two">
+
+  <!-- Heading -->
+  <div class="row newMessage-heading">
+    <div class="row newMessage-main">
+      <div class="col-2 newMessage-back" (click)="closeForm()">
+        <i class="fa fa-arrow-left" aria-hidden="true"></i>
+      </div>
+      <div class="col-10 newMessage-title">
+        Nuevo Cliente
+      </div>
+    </div>
+  </div>
+  <!-- Heading End -->
+
+  <!-- sideBar -->
+  <div class="row compose-sideBar">
+    <form class="form col-12" [formGroup]="registerForm" (submit)="onRegister()">
+      <div class="col-12" style="margin-top: 20px;">
+        <div class="form-group">
+          <select formControlName="type" class="form-control">
+            <option value="own">Cliente Propio</option>
+            <option value="sales-leads">Cliente Referido</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <div class="input-group">
+            <input formControlName="ruc" class="form-control" type="text" name="ruc" placeholder="Número de RUC" required
+                   [ngClass]="{ 'is-invalid': valid.ruc.errors && (valid.ruc.dirty || valid.ruc.touched) }"
+                   [readonly]="edit">
+            <div class="input-group-append" *ngIf="!valid.ruc.errors && !edit">
+              <button class="btn btn-default" (click)="search()">
+                <i class="fa fa-search"></i>
+              </button>
+            </div>
+            <div *ngIf="valid.ruc.errors && (valid.ruc.dirty || valid.ruc.touched)" class="invalid-feedback">
+              <div *ngIf="valid.ruc.errors.required">Campo requerido</div>
+              <div *ngIf="valid.ruc.errors.minlength">Mínimo 10 díjitos</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <input formControlName="name" class="form-control" type="text" name="name" placeholder="Nombre de cliente"
+            [ngClass]="{ 'is-invalid': valid.name.errors && (valid.name.dirty || valid.name.touched) }"
+            [readonly]="readonly">
+          <div *ngIf="valid.name.errors && (valid.name.dirty || valid.name.touched)" class="invalid-feedback">
+            <div *ngIf="valid.name.errors.required">Campo requerido</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <input formControlName="contact" class="form-control" type="text" name="contact" placeholder="Nombre de contacto"
+                 [ngClass]="{ 'is-invalid': valid.contact.errors && (valid.contact.dirty || valid.contact.touched) }">
+          <div *ngIf="valid.contact.errors && (valid.contact.dirty || valid.contact.touched)" class="invalid-feedback">
+            <div *ngIf="valid.contact.errors.pattern">Solo letras</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <input formControlName="phone" class="form-control" type="text" name="phone" placeholder="Número de teléfono ó celular" required
+                 [ngClass]="{ 'is-invalid': valid.phone.errors && (valid.phone.dirty || valid.phone.touched) }">
+          <div *ngIf="valid.phone.errors && (valid.phone.dirty || valid.phone.touched)" class="invalid-feedback">
+            <div *ngIf="valid.phone.errors.required">Campo requerido</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <input formControlName="email" class="form-control" type="email" name="email" placeholder="Correo electrónico">
+        </div>
+        <div class="form-group">
+          <input formControlName="address" class="form-control" type="text" name="address" placeholder="Dirección" required
+                 [ngClass]="{ 'is-invalid': valid.address.errors && (valid.address.dirty || valid.address.touched) }">
+          <div *ngIf="valid.address.errors && (valid.address.dirty || valid.address.touched)" class="invalid-feedback">
+            <div *ngIf="valid.address.errors.required">Campo requerido</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <button type="submit" class="btn btn-block btn-default" [disabled]="registerForm.pristine || registerForm.invalid">
+            <i class="fa fa-save"></i> {{textBtn}}
+          </button>
+        </div>
+      </div>
+
+      <div class="col-12" *ngIf="exist">
+        <div class="card">
+          <div class="card-body">
+            <div><i class="fa fa-user"></i><span> {{user.name}} {{user.firstLastName}} {{user.secondLastName}}</span></div>
+            <div><i class="fa fa-phone"></i><span> {{user.phone}}</span></div>
+            <div><i class="fa fa-envelope-square"></i><span> {{user.email}}</span></div>
+            <div><i class="fas fa-map-marker-alt"></i><span> {{user.city}}</span></div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

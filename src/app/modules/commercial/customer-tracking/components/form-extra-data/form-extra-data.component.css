@@ -1,0 +1,8 @@
+.custom-file-input:focus~.custom-file-label {
+    border-color: #ced4da;
+    box-shadow: none;
+}
+
+.custom-file-input:focus~.custom-file-label::after {
+    border-color: #ced4da;
+}

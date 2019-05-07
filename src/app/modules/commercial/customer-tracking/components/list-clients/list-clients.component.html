@@ -1,0 +1,119 @@
+<div class="side-one">
+  <!-- Heading -->
+  <div class="row heading">
+    <div class="col heading-avatar">
+      <div class="heading-avatar-icon">
+        <img src="https://cdn.vectoricons.net/wp-content/themes/checkout-child/images/me-as-icon-with-glass-transparent.png">
+      </div>
+    </div>
+    <div class="col heading-compose  text-right">
+      <i class="fas fa-user-plus fa-2x" aria-hidden="true" (click)="openForm()"></i>
+      <i class="fas fa-file-excel-o fa-2x text-white" *ngIf="is_commercial_manager" (click)="drp.toggle()" [attr.aria-expanded]="drp.isOpen"></i>
+      <input type="text"
+             [(ngModel)]="bsRangeValue"
+             placeholder="Seleccione un rango de fechas"
+             class="form-control"
+             #drp="bsDaterangepicker"
+             bsDaterangepicker
+             [bsConfig]="{ dateInputFormat: 'DD/MM/YYYY', containerClass: 'theme-red', locale: 'es' }"
+             placement="right"
+             [maxDate]="maxDate"
+             (onHidden)="downloadData()"
+             style="position: absolute; width: 0px; height: 0px; padding: 0px; bottom: 0px; right: 0px; border: 0px; ">
+    </div>
+  </div>
+  <!-- Heading End -->
+  <!-- SearchBox -->
+  <div class="row searchBox">
+    <div class="col-12 searchBox-inner">
+      <div class="form-group has-feedback mb-1">
+        <select class="form-control form-control-sm" (change)="changeCommercial($event)" *ngIf="is_commercial_manager">
+          <option value="">-- SELECCIONA COMERCIAL --</option>
+          <option *ngFor="let item of commercials" value="{{item.code}}">{{item.description}}</option>
+        </select>
+      </div>
+      <div class="form-group has-feedback mb-0">
+        <input id="searchText" type="text" class="form-control form-control-sm" name="searchText" placeholder="Buscar"
+               (keyup)="filterCustomer($event)">
+        <span class="fa fa-search form-control-feedback"></span>
+      </div>
+    </div>
+  </div>
+  <!-- Search Box End -->
+  <!-- sideBar -->
+  <div id="my-scroll">
+      <ul class="list-group mb-3">
+        <li class="list-group-item d-flex justify-content-between lh-condensed c-pointer" *ngFor="let customer of filteredCustomers; let i = index" style="border-right: 0px;">
+          <div (click)="selectedCustomer(customer.id)" style="width: 100%;">
+            <div>
+              <img id="icon-user-{{customer.ruc}}" class="icon-user" src="{{customer.thumbnails[0].link}}" alt="icon"
+                   *ngIf="customer.thumbnails.length > 0"/>
+              <img id="icon-user-{{customer.ruc}}" class="icon-user" src="https://png.pngtree.com/svg/20170218/company_573791.png" alt="icon"
+                   *ngIf="customer.thumbnails.length === 0"/>
+            </div>
+            <h5 class="my-0">{{customer.name | titlecase | slice:0:25}}<span *ngIf="customer.name.length > 25">...</span></h5>
+            <div  class="text-muted" style="padding-left: 50px; font-size: 10px;">
+              <p class="m-0"><b>Contacto:</b> {{customer.contact}}</p>
+              <p class="m-0" *ngIf="customer.user_id != created_by"><b>Comercial:</b> {{customer.user.full_name}}</p>
+            </div>
+          </div>
+          <div class="text-muted text-right">
+            <div (click)="selectedCustomer(customer.id)">
+              <span *ngIf="is_commercial_manager && customer.comments_today.length > 0"   class="badge badge-success mr-1 d-inline">
+                {{customer.comments_today.length}}
+              </span>
+              <span *ngIf="customer.last_comment != '1988-12-31 00:00:00'">{{customer.last_comment | date:'dd/MM/yyyy'}}</span>
+            </div>
+            <div class="btn-group" dropdown placement="bottom right">
+              <a href="javascript:void(0);" id="options" dropdownToggle class="dropdown-toggle" aria-controls="dropdown-alignment">
+                <i class="fa fa-chevron-down"></i>
+              </a>
+              <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="button-alignment">
+                <li role="menuitem">
+                  <a class="dropdown-item" href="javascript:void(0);" (click)="extraData(customer)"><i class="fa fa-list"></i> Datos Extra</a>
+                </li>
+                <li role="menuitem">
+                  <a class="dropdown-item" href="javascript:void(0);" (click)="findCustomer(customer.id)"><i class="fa fa-edit"></i> Editar</a>
+                </li>
+                <li role="menuitem" *ngIf="is_commercial_manager">
+                  <a class="dropdown-item" href="javascript:void(0);" (click)="openModal(template, customer.id)">
+                    <i class="fa fa-random"></i> Asignar
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </li>
+      </ul>
+  </div>
+  <!-- Sidebar End -->
+</div>
+
+<ng-template #template>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Asignar Comercial</h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <table class="table table-sm table-bordered">
+      <thead>
+        <tr>
+          <th>Asesor Comercial</th>
+          <th>Opción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of commercials; let i = index">
+          <td>{{item.description}}</td>
+          <td>
+            <button class="btn btn-sm btn-info p-0 pl-1 pr-1" (click)="assignedCommercial(item.code)">
+              <i class="fa fa-random"> Asignar</i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</ng-template>

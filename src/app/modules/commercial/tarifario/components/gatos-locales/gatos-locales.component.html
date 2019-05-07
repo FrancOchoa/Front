@@ -1,0 +1,233 @@
+<section class="container-fluid">
+    <div class="row">
+        <div class="col">
+            <div class="card rounded-0 p-3 mb-2 mt-2">
+                <div class="row">
+                    <div class="col-2">
+                        <div>
+                            <div class="form-group no-margin">
+                                <select name="type-port" class="form-control form-control-sm" [(ngModel)]="origin" (change)="changeOrigin()">
+                                    <option value="true">Punto Origen</option>
+                                    <option value="false">Punto Destino</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-group no-margin">
+                            <ng-template #templatePort let-model="item" let-index="index">
+                                <img [src]="model.icon" class="mr-1" style="width: 16px"/>
+                                <span>{{model.text}}</span>
+                            </ng-template>
+                            <div class="input-group input-group-sm">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text p-1 rounded-0">
+                                        <img [src]="port.icon" *ngIf="port.icon" alt="flag" style="width: 100%; height: 100%"/>
+                                        <i class="fa fa-flag" *ngIf="!port.icon"></i>
+                                    </span>
+                                </div>
+                                <input id="search-origin" type="text" class="form-control form-control-sm" placeholder="Escriba aquí..." autocomplete="off"
+                                       [(ngModel)]="port.text"
+                                       [typeaheadAsync]="true"
+                                       [typeahead]="searchPort"
+                                       [typeaheadItemTemplate]="templatePort"
+                                       [typeaheadOptionsLimit]="10"
+                                       [typeaheadWaitMs]="300"
+                                       typeaheadOptionField="text"
+                                       (keyup)="setTextSearch($event)"
+                                       (typeaheadOnSelect)="onSelect($event, 1)"/>
+                                <i class="fa fa-fw fa-spinner fa-spin input-loading hide" style="position: absolute; right: 5px; top: 25px; z-index: 100"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-1 p-0">
+                        <div class="form-group no-margin">
+                            <button class="btn btn-primary btn-sm btn-block" (click)="addRow(); registering = true"><i class="fa fa-plus"></i> Nuevo</button>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group no-margin">
+                            <input type="text" name="search" class="form-control form-control-sm"
+                                   placeholder="Buscar, ejemplo(texto|texto)"
+                                   autocomplete="off"
+                                   [(ngModel)]="search_text"
+                                   (keydown.enter)="search()">
+                            <i class="fa fa-fw fa-search input-loading text-gray" style="position: absolute; right: 15px; top: 25px; z-index: 100"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card rounded-0 p-1 mb-2">
+                <div class="table-responsive" style="min-height: 61vh; max-height: 61vh;">
+                    <table class="table table-sm table-bordered custom-table mb-1">
+                        <thead>
+                            <tr class="bg-secondary text-center text-white">
+                                <th>Proveedor/Agente</th>
+                                <th>Via</th>
+                                <th>Concepto</th>
+                                <th>Moneda</th>
+                                <th style="width: 80px;">Valor</th>
+                                <th>Factor</th>
+                                <th style="width: 100px;">Fecha</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <ng-container *ngFor="let item of dataPager; let i = index">
+                            <tr *ngIf="item.edit">
+                                <td>
+                                    <input name="agent" type="text" class="form-control form-control-sm" placeholder="Escriba aquí..." autocomplete="off"
+                                           [(ngModel)]="item.provider.description"
+                                           [typeahead]="searchAgenteProveedor"
+                                           [typeaheadOptionsLimit]="10"
+                                           typeaheadOptionField="description"
+                                           [typeaheadWaitMs]="300"
+                                           (keyup)="setTextSearch($event)"
+                                           (typeaheadOnSelect)="onSelect($event, 2, i)">
+                                    <i class="fa fa-fw fa-spinner fa-spin float-right input-loading hide"></i>
+                                </td>
+                                <td>
+                                    <select name="via" class="form-control form-control-sm" [(ngModel)]="item.via_id">
+                                        <ng-container *ngFor="let item of vias">
+                                            <option value="{{item.code}}" *ngIf="item.code <= 2">{{item.description}}</option>
+                                        </ng-container>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input name="concept" type="text" class="form-control form-control-sm" placeholder="Escriba aquí..." autocomplete="off"
+                                           [(ngModel)]="item.concept">
+                                </td>
+                                <td>
+                                    <select name="currency" class="form-control form-control-sm" [(ngModel)]="item.currency_id">
+                                        <option value="{{item.code}}" *ngFor="let item of currencies">{{item.description}}</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control form-control-sm text-right" autocomplete="off"
+                                           [(ngModel)]="item.value" appNumbersOnly>
+                                </td>
+                                <td>
+                                    <select name="factor" class="form-control form-control-sm" [(ngModel)]="item.factor_id">
+                                        <option value="{{item.code}}" *ngFor="let item of factors">{{item.description}}</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="text"
+                                           class="form-control form-control-sm text-center"
+                                           placeholder="Seleccione"
+                                           autocomplete="off"
+                                           [(ngModel)]="item.date"
+                                           #drp="bsDatepicker"
+                                           bsDatepicker
+                                           [bsConfig]="{ dateInputFormat: 'DD/MM/YYYY', containerClass: 'theme-red', locale: 'es' }"
+                                           (keydown.enter)="addRow()">
+                                </td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-default btn-sm dropdown-toggle p-0 pr-1 pl-1" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            Opciones
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-right">
+                                            <a class="dropdown-item" href="javascript:void(0);" (click)="openModal(template, i)" *ngIf="item.edit">
+                                                <i class="fa fa-eye"></i> Observación
+                                            </a>
+                                            <div class="dropdown-divider mt-0 mb-1" *ngIf="item.id > 0"></div>
+                                            <a class="dropdown-item" href="javascript:void(0);" (click)="update(i)" *ngIf="item.id > 0">
+                                                <i class="fa fa-save"></i> Actualizar
+                                            </a>
+                                            <a class="dropdown-item" href="javascript:void(0);" (click)="cancelEdition(i)" *ngIf="item.id > 0 && item.edit">
+                                                <i class="fa fa-close"></i> Cancelar
+                                            </a>
+                                            <div class="dropdown-divider mt-0 mb-1" *ngIf="item.id > 0"></div>
+                                            <a class="dropdown-item" href="javascript:void(0);" (click)="cloneRow(i)">
+                                                <i class="fa fa-clone"></i> Clonar
+                                            </a>
+                                            <a class="dropdown-item" href="javascript:void(0);" (click)="deleteRow(i)" *ngIf="item.id === 0">
+                                                <i class="fa fa-trash"></i> Eliminar
+                                            </a>
+                                            <a class="dropdown-item" href="javascript:void(0);" (click)="delete(item.id, i)" *ngIf="item.id > 0">
+                                                <i class="fa fa-trash"></i> Eliminar
+                                            </a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr *ngIf="!item.edit">
+                                <td class="align-middle">{{item.provider.description}}</td>
+                                <td class="align-middle text-center">{{ findInArray(vias, item.via_id) }}</td>
+                                <td class="align-middle">{{item.concept}}</td>
+                                <td class="align-middle text-center">{{ findInArray(currencies, item.currency_id) }}</td>
+                                <td class="align-middle text-right">{{item.value}}</td>
+                                <td class="align-middle text-center">{{ findInArray(factors, item.factor_id) }}</td>
+                                <td class="align-middle text-center">{{item.date}}</td>
+                                <td class="align-middle">
+                                    <div class="dropdown">
+                                        <button id="dropdownMenuButton" class="btn btn-default btn-sm dropdown-toggle p-0 pr-1 pl-1"
+                                                type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            Opciones
+                                        </button>
+                                        <div id="dropdown-menu-options" class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                                            <a class="dropdown-item" href="javascript:void(0);" (click)="openModal(template, i)">
+                                                <i class="fa fa-eye"></i> Observación
+                                            </a>
+                                            <a class="dropdown-item" href="javascript:void(0);" (click)="cloneRow(i)">
+                                                <i class="fa fa-clone"></i> Clonar
+                                            </a>
+                                            <a class="dropdown-item" href="javascript:void(0);" (click)="editRow(i)">
+                                                <i class="fa fa-edit"></i> Editar
+                                            </a>
+                                            <a class="dropdown-item" href="javascript:void(0);" (click)="delete(item.id, i)">
+                                                <i class="fa fa-trash"></i> Eliminar
+                                            </a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-container>
+                        <tr *ngIf="dataPager.length === 0">
+                            <td colspan="10">No hay datos para mostrar</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row" *ngIf="!registering && total_registers > 0">
+                    <div class="col-6 m-auto">
+                        Total de registros {{total_registers}}
+                    </div>
+                    <div class="col-6">
+                        <pagination class="pull-right mb-0"
+                                    [boundaryLinks]="true" [totalItems]="total_registers" (pageChanged)="pageChanged($event)"
+                                    [rotate]="true" [maxSize]="10"
+                                    previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;"></pagination>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-danger btn-block" (click)="save()" *ngIf="registering">
+                    <i class="fa fa-save"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <ng-template #template>
+        <div class="modal-header pb-0 pt-2">
+            <h4 class="modal-title">Observación</h4>
+            <button type="button" class="close pull-right" aria-label="Close" (click)="closeModal()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body pt-1 pb-1">
+            <textarea name="observations" rows="6" style="resize: none" class="form-control" placeholder="Escriba aquí..."
+                      [(ngModel)]="dataPager[index].observations" [appAutoFocus]="true"></textarea>
+        </div>
+        <div class="modal-footer pt-1 pb-1" *ngIf="dataPager[index].id > 0">
+            <button type="button" class="btn btn-danger btn-sm btn-block" (click)="update(index, {observations: dataPager[index].observations})">
+                <i class="fa fa-save"></i> Actualizar
+            </button>
+        </div>
+    </ng-template>
+</section>

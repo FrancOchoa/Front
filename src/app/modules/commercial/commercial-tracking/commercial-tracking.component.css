@@ -1,0 +1,46 @@
+@import "./../../../../../node_modules/ngx-bootstrap/datepicker/bs-datepicker.css";
+@import "./../../../../../node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css";
+
+* {
+    font-size: 14px;
+    line-height: normal;
+}
+
+table {
+    text-transform: uppercase;
+}
+
+thead tr th {
+    font-size: 11px;
+}
+
+tbody tr td, tbody tr td span {
+    font-size: 10px;
+}
+
+td .dropdown-menu {
+    position: absolute!important;
+    z-index: 1000;
+}
+
+td .dropdown-menu a {
+    font-size: 11px;
+}
+
+.swal2-radio label {
+    margin-left: 30px!important;
+    margin-bottom: 5px!important;
+    display: flex!important;
+    align-items: center!important;
+    cursor: pointer!important;
+}
+
+.swal2-radio input[type=radio] {
+    position: absolute!important;
+    left: 20px!important;
+}
+
+
+thead input {
+    width: 100%;
+}

@@ -1,0 +1,76 @@
+@import url(assets/bower_components/font-awesome/css/font-awesome.min.css);
+@import url(assets/bower_components/Ionicons/css/ionicons.min.css);
+@import url(assets/dist/css/AdminLTE.css);
+@import url(assets/dist/css/skins/_all-skins.min.css);
+
+#dropdown-menu-options > a{
+    font-size: 14px;
+}
+
+table {
+    line-height: normal !important;
+    font-size: 14px !important;
+}
+
+.custom-table .form-control-sm {
+    border-radius: 0px;
+    padding: 0px 4px;
+    height: calc(1.8125rem - 5px) !important;
+    font-size: 12px;
+}
+
+.input-loading {
+    margin-top: -18px;
+    margin-right: 4px;
+}
+
+.form-control:focus, .page-link:focus, .btn:focus {
+    box-shadow: none;
+}
+
+.view-pager {
+    z-index: 1;
+    position: absolute;
+    top: 360px;
+    left: 20px;
+}
+
+.view-pager .page-link {
+    padding: .25rem .5rem;
+    font-size: .875rem;
+    line-height: 1.5;
+}
+
+.custom-file-input:focus~.custom-file-label {
+    border-color: #ced4da;
+    box-shadow: none;
+}
+
+.custom-file-input:focus~.custom-file-label::after {
+    border-color: #ced4da;
+}
+
+.animated-background {
+    -webkit-animation-duration: 1s;
+    animation-duration: 1s;
+    -webkit-animation-fill-mode: forwards;
+    animation-fill-mode: forwards;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    -webkit-animation-name: placeHolderShimmer;
+    animation-name: placeHolderShimmer;
+    -webkit-animation-timing-function: linear;
+    animation-timing-function: linear;
+    background: #eeeeee;
+    background: -webkit-gradient(linear, left top, right top, color-stop(8%, #eeeeee), color-stop(18%, #dddddd), color-stop(33%, #eeeeee));
+    background: -webkit-linear-gradient(left, #eeeeee 8%, #dddddd 18%, #eeeeee 33%);
+    background: linear-gradient(to right, #eeeeee 8%,#dddddd 18%,#eeeeee 33%);
+    -webkit-background-size: 800px 104px;
+    background-size: 800px 104px;
+    height: 96px;
+    position: relative;
+}
+
+.c-pointer {
+    cursor: pointer;
+}

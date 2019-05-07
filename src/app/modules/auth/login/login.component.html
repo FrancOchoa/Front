@@ -1,0 +1,63 @@
+<section class="h-100">
+  <div class="container h-100">
+    <div class="row justify-content-md-center h-100">
+      <div class="card-wrapper">
+        <div class="brand">
+          <img src="https://nauvalazhar.github.io/my-login/img/logo.jpg" alt="logo">
+        </div>
+        <div class="card fat">
+          <div class="card-body">
+            <h4 class="card-title">Login</h4>
+            <form class="my-login-validation" #formLogin="ngForm" (submit)="onLogin()">
+              <div class="form-group">
+                <label for="email">E-Mail Address</label>
+                <input [(ngModel)]="user.email" id="email" type="email" name="email" class="form-control" required autofocus>
+                <div class="invalid-feedback">
+                  Email is invalid
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="password">Password
+                  <a href="forgot.html" class="float-right">
+                    Forgot Password?
+                  </a>
+                </label>
+                <div style="position:relative" id="eye-password-0">
+                  <input [(ngModel)]="user.password" id="password" type="password" name="password" class="form-control" required style="padding-right: 60px;">
+                  <div class="invalid-feedback">
+                    Password is required
+                  </div>
+                  <input type="hidden" id="passeye-0">
+                  <div class="btn btn-primary btn-sm" id="passeye-toggle-0" style="position: absolute; right: 10px; top: 7px; padding: 2px 7px; font-size: 12px; cursor: pointer;">Show</div>
+                </div>
+                <div class="invalid-feedback">
+                  Password is required
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="custom-checkbox custom-control">
+                  <input type="checkbox" name="remember" id="remember" class="custom-control-input">
+                  <label for="remember" class="custom-control-label">Remeber Me</label>
+                </div>
+              </div>
+
+              <div class="form-group m-0">
+                <button type="submit" class="btn btn-primary btn-block">
+                  Login
+                </button>
+              </div>
+              <div class="mt-4 text-center">
+                Don't have an account? <a href="register.html">Create One</a>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="footer">
+          Copyright © 2017 — Your Company 
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
